@@ -1,0 +1,997 @@
+<!--<!DOCTYPE html>-->
+<!--<html lang="en">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <meta name="viewport" content="width=device-width, initial-scale=1.0">-->
+<!--    <title>AI Resume Analyzer & Job Matcher</title>-->
+<!--    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">-->
+<!--    <style>-->
+<!--        :root {-->
+<!--            &#45;&#45;bg-color: #ffffff;-->
+<!--            &#45;&#45;text-color: #333333;-->
+<!--            &#45;&#45;card-bg: #f8f9fa;-->
+<!--            &#45;&#45;accent-color: #9c27b0; /* Purple accent */-->
+<!--            &#45;&#45;secondary-color: #4caf50;-->
+<!--            &#45;&#45;warning-color: #ff9800;-->
+<!--            &#45;&#45;danger-color: #f44336;-->
+<!--            &#45;&#45;shadow: 0 4px 6px rgba(0,0,0,0.1);-->
+<!--            &#45;&#45;border-radius: 12px;-->
+<!--        }-->
+<!--        [data-theme="dark"] {-->
+<!--            &#45;&#45;bg-color: #121212;-->
+<!--            &#45;&#45;text-color: #e0e0e0;-->
+<!--            &#45;&#45;card-bg: #1e1e1e;-->
+<!--            &#45;&#45;shadow: 0 4px 6px rgba(0,0,0,0.3);-->
+<!--        }-->
+<!--        * {-->
+<!--            box-sizing: border-box;-->
+<!--            margin: 0;-->
+<!--            padding: 0;-->
+<!--        }-->
+<!--        body {-->
+<!--            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;-->
+<!--            background-color: var(&#45;&#45;bg-color);-->
+<!--            color: var(&#45;&#45;text-color);-->
+<!--            transition: all 0.3s ease;-->
+<!--            min-height: 100vh;-->
+<!--        }-->
+<!--        .header {-->
+<!--            background: linear-gradient(135deg, var(&#45;&#45;accent-color), var(&#45;&#45;secondary-color));-->
+<!--            color: white;-->
+<!--            padding: 30px 20px;-->
+<!--            text-align: center;-->
+<!--            position: relative;-->
+<!--            box-shadow: var(&#45;&#45;shadow);-->
+<!--        }-->
+<!--        .header h1 {-->
+<!--            font-size: 2.5em;-->
+<!--            margin-bottom: 10px;-->
+<!--            text-shadow: 0 2px 4px rgba(0,0,0,0.3);-->
+<!--        }-->
+<!--        .header p {-->
+<!--            font-size: 1.2em;-->
+<!--            opacity: 0.9;-->
+<!--        }-->
+<!--        .theme-toggle {-->
+<!--            position: absolute;-->
+<!--            top: 20px;-->
+<!--            right: 20px;-->
+<!--            background: rgba(255,255,255,0.2);-->
+<!--            border: none;-->
+<!--            border-radius: 50%;-->
+<!--            width: 50px;-->
+<!--            height: 50px;-->
+<!--            cursor: pointer;-->
+<!--            transition: all 0.3s ease;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            justify-content: center;-->
+<!--            font-size: 1.5em;-->
+<!--        }-->
+<!--        .theme-toggle:hover {-->
+<!--            background: rgba(255,255,255,0.3);-->
+<!--            transform: scale(1.1);-->
+<!--        }-->
+<!--        .container {-->
+<!--            max-width: 1400px;-->
+<!--            margin: 30px auto;-->
+<!--            padding: 0 20px;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            align-items: center;-->
+<!--            gap: 30px;-->
+<!--        }-->
+<!--        .sidebar {-->
+<!--            background-color: var(&#45;&#45;card-bg);-->
+<!--            padding: 30px;-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            box-shadow: var(&#45;&#45;shadow);-->
+<!--            width: 100%;-->
+<!--            max-width: 600px; /* Center and limit width */-->
+<!--        }-->
+<!--        .sidebar h2 {-->
+<!--            color: var(&#45;&#45;accent-color);-->
+<!--            margin-bottom: 20px;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            font-size: 1.5em;-->
+<!--        }-->
+<!--        .sidebar h2 i {-->
+<!--            margin-right: 10px;-->
+<!--        }-->
+<!--        .upload-section {-->
+<!--            margin-bottom: 30px;-->
+<!--        }-->
+<!--        .upload-section label {-->
+<!--            display: block;-->
+<!--            margin-bottom: 8px;-->
+<!--            font-weight: 600;-->
+<!--        }-->
+<!--        .upload-section input[type="file"] {-->
+<!--            display: block;-->
+<!--            margin-bottom: 15px;-->
+<!--            padding: 12px;-->
+<!--            border: 2px dashed var(&#45;&#45;accent-color);-->
+<!--            border-radius: 8px;-->
+<!--            width: 100%;-->
+<!--            background-color: var(&#45;&#45;bg-color);-->
+<!--            color: var(&#45;&#45;text-color);-->
+<!--            transition: all 0.3s ease;-->
+<!--        }-->
+<!--        .upload-section input[type="file"]:hover {-->
+<!--            border-color: var(&#45;&#45;secondary-color);-->
+<!--            background-color: var(&#45;&#45;card-bg);-->
+<!--        }-->
+<!--        .upload-section textarea {-->
+<!--            display: block;-->
+<!--            margin-bottom: 15px;-->
+<!--            padding: 12px;-->
+<!--            border: 2px solid var(&#45;&#45;accent-color);-->
+<!--            border-radius: 8px;-->
+<!--            width: 100%;-->
+<!--            height: 120px;-->
+<!--            background-color: var(&#45;&#45;bg-color);-->
+<!--            color: var(&#45;&#45;text-color);-->
+<!--            resize: vertical;-->
+<!--            transition: all 0.3s ease;-->
+<!--        }-->
+<!--        .upload-section textarea:focus {-->
+<!--            border-color: var(&#45;&#45;secondary-color);-->
+<!--            outline: none;-->
+<!--            box-shadow: 0 0 0 3px rgba(156,39,176,0.2);-->
+<!--        }-->
+<!--        .upload-section button {-->
+<!--            background: linear-gradient(45deg, var(&#45;&#45;accent-color), var(&#45;&#45;secondary-color));-->
+<!--            color: white;-->
+<!--            border: none;-->
+<!--            padding: 12px 24px;-->
+<!--            border-radius: 8px;-->
+<!--            cursor: pointer;-->
+<!--            width: 100%;-->
+<!--            font-size: 1em;-->
+<!--            font-weight: 600;-->
+<!--            transition: all 0.3s ease;-->
+<!--            box-shadow: 0 4px 15px rgba(156,39,176,0.3);-->
+<!--        }-->
+<!--        .upload-section button:hover {-->
+<!--            transform: translateY(-2px);-->
+<!--            box-shadow: 0 6px 20px rgba(156,39,176,0.5);-->
+<!--        }-->
+<!--        .note {-->
+<!--            background-color: var(&#45;&#45;card-bg);-->
+<!--            padding: 15px;-->
+<!--            border-radius: 8px;-->
+<!--            font-size: 0.9em;-->
+<!--            color: var(&#45;&#45;text-color);-->
+<!--            opacity: 0.8;-->
+<!--            margin-top: 20px;-->
+<!--        }-->
+<!--        .main-content {-->
+<!--            width: 100%;-->
+<!--            max-width: 1400px;-->
+<!--            display: flex;-->
+<!--            flex-direction: column;-->
+<!--            gap: 30px;-->
+<!--        }-->
+<!--        .results {-->
+<!--            background-color: var(&#45;&#45;card-bg);-->
+<!--            padding: 30px;-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            box-shadow: var(&#45;&#45;shadow);-->
+<!--        }-->
+<!--        .results h2 {-->
+<!--            color: var(&#45;&#45;accent-color);-->
+<!--            margin-bottom: 20px;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            font-size: 1.5em;-->
+<!--        }-->
+<!--        .results h2 i {-->
+<!--            margin-right: 10px;-->
+<!--        }-->
+<!--        .score-display {-->
+<!--            text-align: center;-->
+<!--            margin-bottom: 30px;-->
+<!--        }-->
+<!--        .score {-->
+<!--            font-size: 4em;-->
+<!--            font-weight: 700;-->
+<!--            color: var(&#45;&#45;secondary-color);-->
+<!--            margin-bottom: 10px;-->
+<!--        }-->
+<!--        .score-label {-->
+<!--            font-size: 1.2em;-->
+<!--            color: var(&#45;&#45;text-color);-->
+<!--            opacity: 0.8;-->
+<!--        }-->
+<!--        .progress-bar {-->
+<!--            width: 100%;-->
+<!--            height: 20px;-->
+<!--            background-color: #e9ecef;-->
+<!--            border-radius: 10px;-->
+<!--            overflow: hidden;-->
+<!--            margin-top: 10px;-->
+<!--        }-->
+<!--        [data-theme="dark"] .progress-bar {-->
+<!--            background-color: #2a2a2a;-->
+<!--        }-->
+<!--        .progress-fill {-->
+<!--            height: 100%;-->
+<!--            background: linear-gradient(45deg, var(&#45;&#45;secondary-color), var(&#45;&#45;accent-color));-->
+<!--            width: 0%;-->
+<!--            border-radius: 10px;-->
+<!--            transition: width 1s ease;-->
+<!--        }-->
+<!--        .skills-section {-->
+<!--            display: grid;-->
+<!--            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));-->
+<!--            gap: 20px;-->
+<!--            margin-bottom: 30px;-->
+<!--        }-->
+<!--        .skill-card {-->
+<!--            background-color: var(&#45;&#45;bg-color);-->
+<!--            padding: 20px;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 2px 4px rgba(0,0,0,0.1);-->
+<!--            border-left: 4px solid var(&#45;&#45;secondary-color);-->
+<!--        }-->
+<!--        .skill-card.missing {-->
+<!--            border-left-color: var(&#45;&#45;danger-color);-->
+<!--        }-->
+<!--        .skill-card h3 {-->
+<!--            font-size: 1.2em;-->
+<!--            margin-bottom: 10px;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--        .skill-card h3 i {-->
+<!--            margin-right: 8px;-->
+<!--        }-->
+<!--        .skill-card ul {-->
+<!--            list-style: none;-->
+<!--            padding: 0;-->
+<!--        }-->
+<!--        .skill-card li {-->
+<!--            padding: 5px 0;-->
+<!--            border-bottom: 1px solid #eee;-->
+<!--        }-->
+<!--        [data-theme="dark"] .skill-card li {-->
+<!--            border-bottom-color: #333;-->
+<!--        }-->
+<!--        .skill-card li:last-child {-->
+<!--            border-bottom: none;-->
+<!--        }-->
+<!--        .suggestions {-->
+<!--            background-color: var(&#45;&#45;bg-color);-->
+<!--            padding: 20px;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 2px 4px rgba(0,0,0,0.1);-->
+<!--            border-left: 4px solid var(&#45;&#45;warning-color);-->
+<!--        }-->
+<!--        .suggestions h3 {-->
+<!--            font-size: 1.2em;-->
+<!--            margin-bottom: 10px;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--        }-->
+<!--        .suggestions h3 i {-->
+<!--            margin-right: 8px;-->
+<!--        }-->
+<!--        .top-resumes {-->
+<!--            background-color: var(&#45;&#45;card-bg);-->
+<!--            padding: 30px;-->
+<!--            border-radius: var(&#45;&#45;border-radius);-->
+<!--            box-shadow: var(&#45;&#45;shadow);-->
+<!--        }-->
+<!--        .top-resumes h2 {-->
+<!--            color: var(&#45;&#45;accent-color);-->
+<!--            margin-bottom: 20px;-->
+<!--            display: flex;-->
+<!--            align-items: center;-->
+<!--            font-size: 1.5em;-->
+<!--        }-->
+<!--        .top-resumes h2 i {-->
+<!--            margin-right: 10px;-->
+<!--        }-->
+<!--        .resume-list {-->
+<!--            display: grid;-->
+<!--            gap: 15px;-->
+<!--        }-->
+<!--        .resume-item {-->
+<!--            background-color: var(&#45;&#45;bg-color);-->
+<!--            padding: 20px;-->
+<!--            border-radius: 8px;-->
+<!--            box-shadow: 0 2px 4px rgba(0,0,0,0.1);-->
+<!--            display: flex;-->
+<!--            justify-content: space-between;-->
+<!--            align-items: center;-->
+<!--            transition: all 0.3s ease;-->
+<!--        }-->
+<!--        .resume-item:hover {-->
+<!--            transform: translateY(-2px);-->
+<!--            box-shadow: 0 4px 8px rgba(0,0,0,0.15);-->
+<!--        }-->
+<!--        .resume-info h4 {-->
+<!--            margin-bottom: 5px;-->
+<!--            color: var(&#45;&#45;accent-color);-->
+<!--        }-->
+<!--        .resume-score {-->
+<!--            font-size: 1.5em;-->
+<!--            font-weight: 700;-->
+<!--            color: var(&#45;&#45;secondary-color);-->
+<!--        }-->
+<!--        .footer {-->
+<!--            text-align: center;-->
+<!--            padding: 20px;-->
+<!--            background-color: var(&#45;&#45;card-bg);-->
+<!--            color: var(&#45;&#45;text-color);-->
+<!--            margin-top: 30px;-->
+<!--            opacity: 0.8;-->
+<!--        }-->
+<!--        @media (max-width: 768px) {-->
+<!--            .header h1 {-->
+<!--                font-size: 2em;-->
+<!--            }-->
+<!--            .score {-->
+<!--                font-size: 3em;-->
+<!--            }-->
+<!--            .sidebar {-->
+<!--                max-width: 100%;-->
+<!--            }-->
+<!--        }-->
+<!--    </style>-->
+<!--</head>-->
+<!--<body>-->
+<!--    <div class="header">-->
+<!--        <h1><i class="fas fa-robot"></i> AI Resume Analyzer & Job Matcher</h1>-->
+<!--        <p>Match Your Resume with Job Descriptions | Perfect for Job Seekers & HR Professionals</p>-->
+<!--        <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>-->
+<!--    </div>-->
+<!--    <div class="container">-->
+<!--        <div class="sidebar">-->
+<!--            <h2><i class="fas fa-upload"></i> Upload & Analyze</h2>-->
+<!--            <div class="upload-section">-->
+<!--                <label for="resume-file">Select Resume (PDF/DOCX):</label>-->
+<!--                <input type="file" id="resume-file" accept=".pdf,.docx">-->
+<!--                <label for="job-file">Select Job Description File (TXT/PDF) or Paste Text Below:</label>-->
+<!--                <input type="file" id="job-file" accept=".txt,.pdf">-->
+<!--                <textarea id="job-text" placeholder="Or paste your job description text here..."></textarea>-->
+<!--                <button id="analyze-btn"><i class="fas fa-search"></i> Analyze & Match</button>-->
+<!--            </div>-->
+<!--            <div class="note">-->
+<!--                <p><strong>Note:</strong> Upload your resume and job description to get a match score, skill analysis, and AI-powered suggestions. Results are simulated for demo purposes.</p>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--        <div class="main-content">-->
+<!--            <div class="results" id="results" style="display: none;">-->
+<!--                <h2><i class="fas fa-chart-line"></i> Match Results</h2>-->
+<!--                <div class="score-display">-->
+<!--                    <div class="score" id="match-score">0%</div>-->
+<!--                    <div class="score-label">Job Match Score</div>-->
+<!--                    <div class="progress-bar">-->
+<!--                        <div class="progress-fill" id="progress-fill"></div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="skills-section">-->
+<!--                    <div class="skill-card">-->
+<!--                        <h3><i class="fas fa-check-circle"></i> Matched Skills</h3>-->
+<!--                        <ul id="matched-skills">-->
+<!--                            <li>Loading...</li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                    <div class="skill-card missing">-->
+<!--                        <h3><i class="fas fa-times-circle"></i> Missing Skills</h3>-->
+<!--                        <ul id="missing-skills">-->
+<!--                            <li>Loading...</li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="suggestions">-->
+<!--                    <h3><i class="fas fa-lightbulb"></i> AI Suggestions</h3>-->
+<!--                    <ul id="suggestions-list">-->
+<!--                        <li>Loading...</li>-->
+<!--                    </ul>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="top-resumes">-->
+<!--                <h2><i class="fas fa-trophy"></i> Top Matching Resumes</h2>-->
+<!--                <div class="resume-list" id="top-resumes-list">-->
+<!--                    <div class="resume-item">-->
+<!--                        <div class="resume-info">-->
+<!--                            <h4>Saim khan - Software Engineer</h4>-->
+<!--                            <p>Uploaded 2 hours ago</p>-->
+<!--                        </div>-->
+<!--                        <div class="resume-score">92%</div>-->
+<!--                    </div>-->
+<!--                    <div class="resume-item">-->
+<!--                        <div class="resume-info">-->
+<!--                            <h4>Hafsa khan - Data Analyst</h4>-->
+<!--                            <p>Uploaded 5 hours ago</p>-->
+<!--                        </div>-->
+<!--                        <div class="resume-score">88%</div>-->
+<!--                    </div>-->
+<!--                    <div class="resume-item">-->
+<!--                        <div class="resume-info">-->
+<!--                            <h4>Sarah waqas - AI Specialist</h4>-->
+<!--                            <p>Uploaded 1 day ago</p>-->
+<!--                        </div>-->
+<!--                        <div class="resume-score">85%</div>-->
+<!--                    </div>-->
+<!--                    <div class="resume-item">-->
+<!--                        <div class="resume-info">-->
+<!--                            <h4>Awais Ali - Full Stack Developer</h4>-->
+<!--                            <p>Uploaded 2 days ago</p>-->
+<!--                        </div>-->
+<!--                        <div class="resume-score">82%</div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="footer">-->
+<!--        <p>&copy; 2025 AI Resume Analyzer & Job Matcher.</p>-->
+<!--    </div>-->
+
+<!--    <script>-->
+<!--        const themeToggle = document.getElementById('theme-toggle');-->
+<!--        const body = document.body;-->
+<!--        const icon = themeToggle.querySelector('i');-->
+
+<!--        themeToggle.addEventListener('click', () => {-->
+<!--            body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';-->
+<!--            icon.className = body.dataset.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';-->
+<!--        });-->
+
+<!--        const analyzeBtn = document.getElementById('analyze-btn');-->
+<!--        const results = document.getElementById('results');-->
+<!--        const matchScore = document.getElementById('match-score');-->
+<!--        const progressFill = document.getElementById('progress-fill');-->
+<!--        const matchedSkills = document.getElementById('matched-skills');-->
+<!--        const missingSkills = document.getElementById('missing-skills');-->
+<!--        const suggestionsList = document.getElementById('suggestions-list');-->
+
+<!--        analyzeBtn.addEventListener('click', () => {-->
+<!--            // Mock analysis - in real app, this would process files and/or text-->
+<!--            const score = Math.floor(Math.random() * 40) + 60; // Random score between 60-99-->
+<!--            matchScore.textContent = score + '%';-->
+<!--            progressFill.style.width = score + '%';-->
+
+<!--            matchedSkills.innerHTML = `-->
+<!--                <li>Python Programming</li>-->
+<!--                <li>Data Analysis</li>-->
+<!--                <li>Machine Learning</li>-->
+<!--                <li>SQL Databases</li>-->
+<!--            `;-->
+
+<!--            missingSkills.innerHTML = `-->
+<!--                <li>Cloud Computing (AWS/Azure)</li>-->
+<!--                <li>DevOps Tools</li>-->
+<!--                <li>Agile Project Management</li>-->
+<!--            `;-->
+
+<!--            suggestionsList.innerHTML = `-->
+<!--                <li>Highlight cloud experience in your resume</li>-->
+<!--                <li>Add certifications in DevOps tools</li>-->
+<!--                <li>Quantify project impacts with metrics</li>-->
+<!--                <li>Tailor resume keywords to job description</li>-->
+<!--            `;-->
+
+<!--            results.style.display = 'block';-->
+<!--            results.scrollIntoView({ behavior: 'smooth' });-->
+<!--        });-->
+<!--    </script>-->
+<!--</body>-->
+<!--</html>-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Analyzer & Job Matcher</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #333333;
+            --card-bg: #f8f9fa;
+            --accent-color: #9c27b0; /* Purple accent */
+            --secondary-color: #4caf50;
+            --warning-color: #ff9800;
+            --danger-color: #f44336;
+            --shadow: 0 4px 6px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+        }
+        [data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --card-bg: #1e1e1e;
+            --shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            min-height: 100vh;
+        }
+        .header {
+            background: linear-gradient(135deg, var(--accent-color), var(--secondary-color));
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+            position: relative;
+            box-shadow: var(--shadow);
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+        }
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.1);
+        }
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            align-items: start;
+        }
+        .left-image {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .left-image img {
+            max-width: 100%;
+            height: auto;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .sidebar {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 100%;
+        }
+        .sidebar h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+        }
+        .sidebar h2 i {
+            margin-right: 10px;
+        }
+        .upload-section {
+            margin-bottom: 30px;
+        }
+        .upload-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .upload-section input[type="file"] {
+            display: block;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 2px dashed var(--accent-color);
+            border-radius: 8px;
+            width: 100%;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+        .upload-section input[type="file"]:hover {
+            border-color: var(--secondary-color);
+            background-color: var(--card-bg);
+        }
+        .upload-section textarea {
+            display: block;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 2px solid var(--accent-color);
+            border-radius: 8px;
+            width: 100%;
+            height: 120px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+        .upload-section textarea:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(156,39,176,0.2);
+        }
+        .upload-section button {
+            background: linear-gradient(45deg, var(--accent-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(156,39,176,0.3);
+        }
+        .upload-section button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(156,39,176,0.5);
+        }
+        .note {
+            background-color: var(--card-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+        .main-content {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            grid-column: 1 / -1; /* Span across all columns below the form */
+        }
+        .results {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .results h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+        }
+        .results h2 i {
+            margin-right: 10px;
+        }
+        .score-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .score {
+            font-size: 4em;
+            font-weight: 700;
+            color: var(--secondary-color);
+            margin-bottom: 10px;
+        }
+        .score-label {
+            font-size: 1.2em;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        [data-theme="dark"] .progress-bar {
+            background-color: #2a2a2a;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, var(--secondary-color), var(--accent-color));
+            width: 0%;
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .skills-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .skill-card {
+            background-color: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--secondary-color);
+        }
+        .skill-card.missing {
+            border-left-color: var(--danger-color);
+        }
+        .skill-card h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .skill-card h3 i {
+            margin-right: 8px;
+        }
+        .skill-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .skill-card li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        [data-theme="dark"] .skill-card li {
+            border-bottom-color: #333;
+        }
+        .skill-card li:last-child {
+            border-bottom: none;
+        }
+        .suggestions {
+            background-color: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--warning-color);
+        }
+        .suggestions h3 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+        .suggestions h3 i {
+            margin-right: 8px;
+        }
+        .top-resumes {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        .top-resumes h2 {
+            color: var(--accent-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            font-size: 1.5em;
+        }
+        .top-resumes h2 i {
+            margin-right: 10px;
+        }
+        .resume-list {
+            display: grid;
+            gap: 15px;
+        }
+        .resume-item {
+            background-color: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        .resume-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+        .resume-info h4 {
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+        .resume-score {
+            font-size: 1.5em;
+            font-weight: 700;
+            color: var(--secondary-color);
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            margin-top: 30px;
+            opacity: 0.8;
+        }
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr; /* Stack on mobile */
+                gap: 20px;
+            }
+            .left-image {
+                display: none; /* Hide image on mobile */
+            }
+            .main-content {
+                grid-column: 1; /* Adjust for mobile */
+            }
+            .header h1 {
+                font-size: 2em;
+            }
+            .score {
+                font-size: 3em;
+            }
+            .sidebar {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><i class="fas fa-robot"></i> AI Resume Analyzer & Job Matcher</h1>
+        <p>Match Your Resume with Job Descriptions | Perfect for Job Seekers & HR Professionals</p>
+        <button class="theme-toggle" id="theme-toggle"><i class="fas fa-moon"></i></button>
+    </div>
+    <div class="container">
+        <div class="left-image">
+            <!-- Add your image here -->
+            <img src="/static/images/image.jpg" alt="Your Image">
+
+
+        </div>
+
+        <div class="sidebar">
+            <h2><i class="fas fa-upload"></i> Upload & Analyze</h2>
+            <div class="upload-section">
+                <label for="resume-file">Select Resume (PDF/DOCX):</label>
+                <input type="file" id="resume-file" accept=".pdf,.docx">
+                <label for="job-file">Select Job Description File (TXT/PDF) or Paste Text Below:</label>
+                <input type="file" id="job-file" accept=".txt,.pdf">
+                <textarea id="job-text" placeholder="Or paste your job description text here..."></textarea>
+                <button id="analyze-btn"><i class="fas fa-search"></i> Analyze & Match</button>
+            </div>
+            <div class="note">
+                <p><strong>Note:</strong> Upload your resume and job description to get a match score, skill analysis, and AI-powered suggestions. Results are simulated for demo purposes.</p>
+            </div>
+        </div>
+        <div class="main-content">
+            <div class="results" id="results" style="display: none;">
+                <h2><i class="fas fa-chart-line"></i> Match Results</h2>
+                <div class="score-display">
+                    <div class="score" id="match-score">0%</div>
+                    <div class="score-label">Job Match Score</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+                <div class="skills-section">
+                    <div class="skill-card">
+                        <h3><i class="fas fa-check-circle"></i> Matched Skills</h3>
+                        <ul id="matched-skills">
+                            <li>Loading...</li>
+                        </ul>
+                    </div>
+                    <div class="skill-card missing">
+                        <h3><i class="fas fa-times-circle"></i> Missing Skills</h3>
+                        <ul id="missing-skills">
+                            <li>Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="suggestions">
+                    <h3><i class="fas fa-lightbulb"></i> AI Suggestions</h3>
+                    <ul id="suggestions-list">
+                        <li>Loading...</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="top-resumes">
+                <h2><i class="fas fa-trophy"></i> Top Matching Resumes</h2>
+                <div class="resume-list" id="top-resumes-list">
+                    <div class="resume-item">
+                        <div class="resume-info">
+                            <h4>Saim khan - Software Engineer</h4>
+                            <p>Uploaded 2 hours ago</p>
+                        </div>
+                        <div class="resume-score">92%</div>
+                    </div>
+                    <div class="resume-item">
+                        <div class="resume-info">
+                            <h4>Hafsa khan - Data Analyst</h4>
+                            <p>Uploaded 5 hours ago</p>
+                        </div>
+                        <div class="resume-score">88%</div>
+                    </div>
+                    <div class="resume-item">
+                        <div class="resume-info">
+                            <h4>Sarah waqas - AI Specialist</h4>
+                            <p>Uploaded 1 day ago</p>
+                        </div>
+                        <div class="resume-score">85%</div>
+                    </div>
+                    <div class="resume-item">
+                        <div class="resume-info">
+                            <h4>Awais Ali - Full Stack Developer</h4>
+                            <p>Uploaded 2 days ago</p>
+                        </div>
+                        <div class="resume-score">82%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="footer">
+        <p>&copy; 2025 AI Resume Analyzer & Job Matcher.</p>
+    </div>
+
+    <script>
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+
+        themeToggle.addEventListener('click', () => {
+            body.dataset.theme = body.dataset.theme === 'dark' ? 'light' : 'dark';
+            icon.className = body.dataset.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+        });
+
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const results = document.getElementById('results');
+        const matchScore = document.getElementById('match-score');
+        const progressFill = document.getElementById('progress-fill');
+        const matchedSkills = document.getElementById('matched-skills');
+        const missingSkills = document.getElementById('missing-skills');
+        const suggestionsList = document.getElementById('suggestions-list');
+
+        analyzeBtn.addEventListener('click', () => {
+            // Mock analysis - in real app, this would process files and/or text
+            const score = Math.floor(Math.random() * 40) + 60; // Random score between 60-99
+            matchScore.textContent = score + '%';
+            progressFill.style.width = score + '%';
+
+            matchedSkills.innerHTML = `
+                <li>Python Programming</li>
+                <li>Data Analysis</li>
+                <li>Machine Learning</li>
+                <li>SQL Databases</li>
+            `;
+
+            missingSkills.innerHTML = `
+                <li>Cloud Computing (AWS/Azure)</li>
+                <li>DevOps Tools</li>
+                <li>Agile Project Management</li>
+            `;
+
+            suggestionsList.innerHTML = `
+                <li>Highlight cloud experience in your resume</li>
+                <li>Add certifications in DevOps tools</li>
+                <li>Quantify project impacts with metrics</li>
+                <li>Tailor resume keywords to job description</li>
+            `;
+
+            results.style.display = 'block';
+            results.scrollIntoView({ behavior: 'smooth' });
+        });
+    </script>
+</body>
+</html>
